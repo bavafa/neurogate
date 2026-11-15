@@ -39,7 +39,7 @@ const BLOCKS = [
   { id: "eth", t: "eth_parser", s: "Ethernet, one VLAN tag", x: 325, y: 90, w: 140, file: "rtl/eth_parser.sv", doc: "eth_parser", lane: "net",
     note: "Reads the Ethernet header. Detects an optional 802.1Q tag. Drops frames with tuser set, frames too short for the header, and EtherTypes other than IPv4. Frame bytes pass on unchanged." },
   { id: "l3l4", t: "l3l4_parser", s: "IPv4, TCP, UDP", x: 490, y: 90, w: 140, file: "rtl/l3l4_parser.sv", doc: "l3l4_parser", lane: "net",
-    note: "Reads IPv4 and TCP/UDP fields: SYN, ACK, RST/FIN, IP length, TTL, destination port. Skips IP options, drops non-first fragments and other protocols. A TCP frame cut after 14 header bytes, or UDP after 4, is kept (D-020). Fields that straddle two beats are handled." },
+    note: "Reads IPv4 and TCP/UDP fields: SYN, ACK, RST/FIN, IP length, TTL, destination port. Skips IP options, drops non-first fragments and other protocols. A TCP frame cut after 14 header bytes, or UDP after 4, is kept. Fields that straddle two beats are handled." },
   { id: "fb", t: "feature_builder", s: "8 features, 64-pkt window", x: 655, y: 90, w: 150, file: "rtl/feature_builder.sv", doc: "feature_builder", lane: "net",
     note: "Turns each parsed frame into 8 int8 features and writes one 114-bit entry. Keeps a 64-packet window: a ring, 64 per-bucket counters and a SYN count. Port count is occupied buckets of a 64-way hash, an approximation. If the async FIFO is full the entry is dropped and counted, and the input is never stalled." },
   { id: "afifo", t: "async_fifo", s: "16 x 114 bit, Gray pointers", x: 760, y: 212, w: 200, file: "rtl/async_fifo.sv", doc: "async_fifo", lane: "cross",
