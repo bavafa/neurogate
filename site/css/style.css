@@ -1,26 +1,19 @@
-/* NeuroGate case study. Plain CSS, no build step. Light and dark follow the OS setting.
+/* NeuroGate case study. Plain CSS, no build step. Dark theme only.
    Palette: near-black, white and grey with a teal accent, sampled from the colours used on
    amd.com/en/solutions/ai.html (#000, #111112, #1a1a1b, #27282b, #00c2de, #2899ff, #9d9fa2, #636466).
    Palette only: no logo, name or font is used. */
+/* Dark only, so the page looks the same for every viewer. */
 :root {
-  --bg: #f8f9fa; --panel: #ffffff; --ink: #1a1a1b; --muted: #636466; --line: #dee2e6;
-  --accent: #00778a; --accent-ink: #ffffff; --focus: #b45309;
-  --sim: #0b6b3a; --sim-bg: #e3f4ea; --est: #8a4b00; --est-bg: #fdf0dc;
-  --c-normal: #1f6fc2; --c-scan: #b25e00; --c-flood: #9b2c6f;   /* class colours, also told apart by label */
-  --net: #e3f4f7; --core: #eceef0; --cross: #fff3d6;
+  color-scheme: dark;
+  --bg: #111112; --panel: #1a1a1b; --ink: #f8f9fa; --muted: #9d9fa2; --line: #27282b;
+  --accent: #00c2de; --accent-ink: #000000; --focus: #ffb454;
+  --sim: #7ee2a8; --sim-bg: #123524; --est: #ffc27a; --est-bg: #3a2810;
+  --c-normal: #2899ff; --c-scan: #f2a64b; --c-flood: #e58ac0;   /* class colours, also told apart by label */
+  --net: #0f2a30; --core: #222326; --cross: #3a3012;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111112; --panel: #1a1a1b; --ink: #f8f9fa; --muted: #9d9fa2; --line: #27282b;
-    --accent: #00c2de; --accent-ink: #000000; --focus: #ffb454;
-    --sim: #7ee2a8; --sim-bg: #123524; --est: #ffc27a; --est-bg: #3a2810;
-    --c-normal: #2899ff; --c-scan: #f2a64b; --c-flood: #e58ac0;
-    --net: #0f2a30; --core: #222326; --cross: #3a3012;
-  }
-}
-/* The menu bar and the opening block are always dark, in both themes. */
+/* Menu bar and opening block: pure black. */
 nav.top, header.hero {
   --bg: #000; --panel: #1a1a1b; --ink: #f8f9fa; --muted: #9d9fa2; --line: #27282b;
   --accent: #00c2de; --accent-ink: #000; --focus: #ffb454;
@@ -73,8 +66,7 @@ th, td { border: 1px solid var(--line); padding: .45rem .6rem; text-align: left;
 th { background: color-mix(in srgb, var(--panel) 85%, var(--line)); }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .tablewrap { overflow-x: auto; }
-.bad { color: #b3261e; font-weight: 700; }
-@media (prefers-color-scheme: dark) { .bad { color: #ff8a80; } }
+.bad { color: #ff8a80; font-weight: 700; }
 
 figure { margin: 1rem 0; }
 figure svg { width: 100%; height: auto; display: block; }
@@ -151,3 +143,4 @@ footer { padding: 30px 0 60px; color: var(--muted); font-size: .88rem; }
 .wave .span { stroke: var(--ink); stroke-width: 1.2; fill: none; } .wave .xfill { fill: color-mix(in srgb, var(--line) 80%, transparent); }
 .wave { min-width: 760px; }
 #archbox { overflow-x: auto; } #archbox svg { min-width: 760px; }
+#findings { min-width: 820px; } #timing { min-width: 620px; } #verify .tablewrap table { min-width: 640px; }
