@@ -42,6 +42,6 @@ Repo snapshot: commit `fba2882` (the only commit in the clone used). Run on 2026
 6. **Milestone M5** is "in progress" in the repo snapshot (second-model review and owner gate not recorded). The page says so.
 7. **Dates.** The decision log supports Nov 13 and Nov 14. "Nov 13 to 15" is from your brief.
 8. **Credentials in the About section** (M.Sc., B.Sc., certificate, 8+ years, team of 14) come from your brief, not from the repo.
-9. **Contact link** is a placeholder (`#contact` in `index.html`).
+9. **Contact link** is the email alias you gave me. I did not check that it receives mail.
 10. **Vercel deploy not tested** (no account access here). The folder is plain static files. Links to GitHub and to the Evidence page returned HTTP 200 on 2026-11-15; linked repo file paths were checked to exist in the clone.
 11. **Not tested:** screen readers; browsers other than the embedded one; narrow-width layout was checked at 375 px for horizontal overflow only. The feature-distribution charts use three class colours that are also labelled in the legend and in the caption text, but they have not been checked with a colour-blindness simulator.
