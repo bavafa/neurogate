@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NeuroGate case study: AI-built packet-classification IP block</title>
+<title>NeuroGate case study: packet-classification hardware block with a tiny neural network</title>
 <meta name="description" content="A SystemVerilog packet pipeline with a small int8 neural network, built with a multi-agent AI flow and verified in simulation. All traffic is synthetic. Nothing ran on silicon or FPGA.">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -12,7 +12,7 @@
 <nav class="top" aria-label="Sections">
   <ul id="menu">
     <li><a href="#top">Overview</a></li>
-    <li><a href="#why">Why</a></li>
+    <li><a href="#why">What was built</a></li>
     <li><a href="#how">How it was built</a></li>
     <li><a href="#arch">Architecture</a></li>
     <li><a href="#follow">Follow a packet</a></li>
@@ -27,9 +27,9 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <h1>NeuroGate: an AI-built packet-classification IP block, verified in simulation.</h1>
-    <p class="by">Built by Sam Bavafa (M.Sc. Electrical Engineering), in a weekend (Nov 13 to 15, 2026), using a multi-agent AI flow.</p>
-    <p>This project shows AI-assisted engineering on a packet-processing block: Claude Code writes the RTL and tests, OpenAI Codex reviews, and Sam directs the work and approves each milestone.</p>
+    <h1>A small hardware block that labels network packets</h1>
+    <p><b>The problem.</b> Network attacks such as port scans and SYN floods are commonly detected in software, after packets have been received and queued. A port scan is one machine probing many ports to find open ones. A SYN flood is a burst of connection requests that are never finished, meant to overload a server. SYN, short for synchronize, is the first message of a connection. Putting small ML models in the packet path is an active direction for SmartNICs and DPUs.</p>
+    <p><b>The approach.</b> NeuroGate is a hardware design, written in SystemVerilog (a language for describing digital circuits), that reads each network packet and labels it normal, port scan or SYN flood. A tiny neural network with 8-bit integer weights makes the call from eight numbers about the packet and the recent traffic. This page collects the results. All of them come from simulation on synthetic data.</p>
     <p class="caveat">Scope: everything here is simulation or a tool estimate. Nothing ran on FPGA or silicon. All traffic is synthetic.</p>
     <div class="btns">
       <a class="btn primary" href="#follow">Follow one packet</a>
@@ -43,77 +43,38 @@
 <main id="main" class="wrap">
 
 <section id="why">
-  <h2>Why this problem</h2>
-  <p class="lede">Classify each packet in the data path with a small neural network, instead of in software.</p>
-  <p>Putting small ML models in the packet path is an active direction for SmartNICs and DPUs. NeuroGate is a small working example of that idea.</p>
+  <h2>What was built</h2>
   <p>The model is small on purpose: 8 inputs, 16 hidden units, 3 outputs, int8 weights. The block labels each packet as <b>normal</b>, <b>port scan</b> or <b>SYN flood</b> and reports a confidence margin. The point of the project is the whole path at small scale: AXI-Stream input, header parsing, feature extraction over a sliding window, a clock-domain crossing, fixed-point inference, flow control, counters and an AXI-Lite register interface. All of it is checked against a Python reference model.</p>
 </section>
 
 <section id="how">
   <h2>How it was built with AI</h2>
-  <p class="lede">Four roles, one human. The AI agents wrote the RTL and the tests. Sam directed the work and approved every gate.</p>
+  <p class="lede">Built with a multi-agent flow. Claude Code builds each milestone, OpenAI Codex reviews it, and the engineer sets the scope and design decisions and approves each milestone before the next one starts.</p>
 
   <figure>
     <svg class="flow" viewBox="0 0 960 250" role="img" aria-labelledby="flow-t flow-d">
       <title id="flow-t">Multi-agent build flow</title>
-      <desc id="flow-d">A planning agent writes the task list. Claude Code builds RTL, tests and the Python model. OpenAI Codex reviews each milestone read-only and writes findings to a separate file. Claude Code closes the findings. A human approves the milestone gate. The loop repeats for milestones M1 to M5.</desc>
+      <desc id="flow-d">A planning agent writes the task list. Claude Code builds RTL, tests and the Python model. OpenAI Codex reviews each milestone read-only and writes findings to a separate file. Claude Code closes the findings. The engineer approves each milestone. The loop repeats for milestones M1 to M5.</desc>
       <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted);stroke:none"/></marker></defs>
-      <rect x="20" y="90" width="190" height="80" rx="8"/><text class="h" x="115" y="120" text-anchor="middle">Planning agent</text><text x="115" y="140" text-anchor="middle">writes TASKS.md</text><text x="115" y="156" text-anchor="middle">runs milestone gates</text>
+      <rect x="20" y="90" width="190" height="80" rx="8"/><text class="h" x="115" y="120" text-anchor="middle">Planning agent</text><text x="115" y="140" text-anchor="middle">writes the task list,</text><text x="115" y="156" text-anchor="middle">checks each milestone</text>
       <rect x="270" y="90" width="190" height="80" rx="8"/><text class="h" x="365" y="120" text-anchor="middle">Claude Code (builder)</text><text x="365" y="140" text-anchor="middle">RTL, tests, model,</text><text x="365" y="156" text-anchor="middle">scripts, docs</text>
       <rect x="520" y="90" width="200" height="80" rx="8"/><text class="h" x="620" y="120" text-anchor="middle">OpenAI Codex (reviewer)</text><text x="620" y="140" text-anchor="middle">read-only, writes a</text><text x="620" y="156" text-anchor="middle">findings file per milestone</text>
-      <rect class="human" x="780" y="90" width="160" height="80" rx="8"/><text class="h" x="860" y="120" text-anchor="middle">Human (Sam)</text><text x="860" y="140" text-anchor="middle">decides, approves</text><text x="860" y="156" text-anchor="middle">each gate, tags M1 to M5</text>
+      <rect class="human" x="780" y="90" width="160" height="80" rx="8"/><text class="h" x="860" y="120" text-anchor="middle">Engineer</text><text x="860" y="132" text-anchor="middle">sets scope and design</text><text x="860" y="148" text-anchor="middle">decisions, reviews and</text><text x="860" y="164" text-anchor="middle">approves each milestone</text>
       <path d="M210 130 H268" marker-end="url(#ah)"/><path d="M460 130 H518" marker-end="url(#ah)"/><path d="M720 130 H778" marker-end="url(#ah)"/>
       <path d="M620 172 V215 H365 V172" marker-end="url(#ah)"/><text x="492" y="208" text-anchor="middle" class="muted">builder closes findings</text>
-      <path d="M860 88 V40 H115 V88" marker-end="url(#ah)"/><text x="490" y="33" text-anchor="middle" class="muted">owner decisions override everything and are logged in DECISIONS.md</text>
+      <path d="M860 88 V40 H115 V88" marker-end="url(#ah)"/><text x="490" y="33" text-anchor="middle" class="muted">the engineer's decisions take priority and are logged in the repo</text>
     </svg>
     <figcaption>Roles as defined in the project's process rules. The reviewer is read-only. The builder may not edit the review files.</figcaption>
   </figure>
 
   <h3>Milestones</h3>
   <ol class="timeline" id="timeline">
-    <li><b>M1 Spec</b>SPEC, register map, scaffolding. Gate approved 2026-11-13 (D-010).</li>
-    <li><b>M2 Parsers</b>Traffic generator, feature model, parsers, queues. Gate approved 2026-11-13 (D-021).</li>
-    <li><b>M3 Network</b>Training, golden model, network core, decision unit. Gate approved 2026-11-14 (D-029).</li>
-    <li><b>M4 Full design</b>Top level, synthesis, gate-level simulation, timing. Gate approved 2026-11-14 (D-041).</li>
-    <li class="open"><b>M5 Docs</b>README, results page, clean-clone check. Final review and gate still open in the repo snapshot used here.</li>
+    <li><b>M1 Spec</b>Specification, register map and project scaffolding.</li>
+    <li><b>M2 Parsers</b>Traffic generator, feature model, parsers, input queues.</li>
+    <li><b>M3 Network</b>Training, golden model, network core, decision unit.</li>
+    <li><b>M4 Full design</b>Top level, synthesis, gate-level simulation, timing.</li>
+    <li class="open"><b>M5 Docs</b>README, results page, clean-clone check. Final review in progress.</li>
   </ol>
-  <p class="src"><span class="tag sim">repo record</span> Sources: <a href="https://github.com/bavafa/neurogate/blob/main/STATUS.md">STATUS.md</a> milestone table, <a href="https://github.com/bavafa/neurogate/blob/main/DECISIONS.md">DECISIONS.md</a> D-010, D-021, D-029, D-041.</p>
-
-  <h3>What the human decided, and what the AI wrote</h3>
-  <div class="grid2">
-    <div class="card"><b>Decided and approved by Sam</b>
-      <ul class="plain">
-        <li>Scope and the open design questions: 64-bit AXI-Stream input, 64-packet window, simulators, liberty file, queue placement (D-001a to D-001e).</li>
-        <li>Confidence stays a logit margin, not a probability; no softmax in RTL (D-002, D-026).</li>
-        <li>Each milestone gate M1 to M4 (D-010, D-021, D-029, D-041).</li>
-        <li>The 0.108 ns reset-removal miss is reported as "not done", not hidden and not fixed (D-041).</li>
-      </ul></div>
-    <div class="card"><b>Written by the AI agents</b>
-      <ul class="plain">
-        <li>All RTL (11 modules), cocotb tests, the Python model, scripts and docs: Claude Code.</li>
-        <li>Review findings: OpenAI Codex, read-only.</li>
-        <li>Task list and gate checks: planning agent.</li>
-        <li>The RTL and tests were generated by Claude Code and reviewed by OpenAI Codex, under Sam's direction.</li>
-      </ul></div>
-  </div>
-
-  <h3>Real review findings</h3>
-  <p>Only <code>reviews/M1-review.md</code> is in the public repo. For M2 to M5 the rows come from the builder's records in STATUS.md and DECISIONS.md, in the builder's wording.</p>
-  <div class="tablewrap"><table id="findings">
-    <thead><tr><th>Review</th><th>Finding</th><th>How it was closed</th><th>Source</th></tr></thead>
-    <tbody>
-<tr><td><b>M1</b><br><span class="rate">must fix</span></td><td>Counters update after queued entries finish, so their sum cannot always equal frames received. Soft-reset behaviour was undefined.</td><td>Reset precedence and accounting boundary written into the spec and register map. Equality now qualified (drained pipeline, no saturation).</td><td><a href="https://github.com/bavafa/neurogate/blob/main/reviews/M1-review.md">M1-review.md</a></td></tr>
-<tr><td><b>M1</b><br><span class="rate">must fix</span></td><td>The spec said the test set is never used for tuning, but the default confidence threshold came from the test-set table.</td><td>Threshold now chosen on a validation split from training data. The test set reports once (D-008).</td><td>M1-review.md, D-008</td></tr>
-<tr><td><b>M1</b><br><span class="rate">must fix</span></td><td><code>toolchain_check.sh</code> printed an Icarus error and still exited 0.</td><td>Script checks each command's exit code and output. Tested with a failing tool.</td><td>M1-review.md</td></tr>
-<tr><td><b>M1</b><br><span class="rate">should fix</span></td><td>Two STATUS claims had no saved evidence.</td><td>Marked "unverified, no saved output".</td><td>M1-review.md</td></tr>
-<tr><td><b>M2</b><br><span class="rate">must fix</span></td><td>Truncated-header behaviour was in the model and RTL but not in the spec.</td><td>Spec clarified, no RTL change. Owner confirmed at Gate M2.</td><td>D-020, D-021</td></tr>
-<tr><td><b>M2</b><br><span class="rate">must fix</span></td><td>"Parsers agree with Scapy on every frame" was too strong.</td><td>Reworded to the breakdown: 8,900 frames fully compared, 6 keep/drop only, 694 dropped by both.</td><td>STATUS.md, D-021</td></tr>
-<tr><td><b>M2</b><br><span class="rate">should fix</span></td><td>Handshake checks missed payload changes during a stall.</td><td>New monitor. No RTL bug found. It caught two planted faults and missed a third; STATUS says so.</td><td>STATUS.md</td></tr>
-<tr><td><b>M3</b><br><span class="rate">should fix</span></td><td>RTL was compared on 2,028 vectors, not on every test packet. (No must fix at M3.)</td><td><code>make test-full</code> replays all 8,347 packets twice: 0 mismatches.</td><td>STATUS.md, D-028</td></tr>
-<tr><td><b>M4</b><br><span class="rate">review item</span></td><td><code>clear_beats()</code> replaced the error list, so a running monitor stopped seeing protocol faults.</td><td>Fixed. A regression test fails on the old code.</td><td>D-040, <a href="https://github.com/bavafa/neurogate/blob/main/tb/evidence/clear_beats_monitor.log">log</a></td></tr>
-<tr><td><b>M4</b><br><span class="rate">review item</span></td><td>The timing script could pass with broken constraints.</td><td><code>make sta</code> now fails on constraint problems. Shown with a planted fault.</td><td>D-040, <a href="https://github.com/bavafa/neurogate/blob/main/synth/reports/sta_constraint_check.log">log</a></td></tr>
-<tr><td><b>M5</b><br><span class="rate">must fix, should fix</span></td><td>Some page values were typed by hand instead of read from logs. The replay log lacked provenance. Notes were out of step with the RTL.</td><td>The page reads the logs. Provenance line added. Notes corrected.</td><td>D-046</td></tr>
-    </tbody></table></div>
 </section>
 
 <section id="arch">

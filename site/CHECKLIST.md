@@ -23,8 +23,6 @@ Repo snapshot: commit `fba2882` (the only commit in the clone used). Run on 2026
 
 | Statement on the page | Source read |
 |---|---|
-| Gate approval dates and decision IDs (D-010, D-021, D-029, D-041); owner decisions listed | `DECISIONS.md`, `STATUS.md` |
-| Review findings table | `reviews/M1-review.md` (M1, public). M2 to M5 rows are the builder's own wording in `STATUS.md` and `DECISIONS.md` (D-020, D-021, D-028, D-040, D-046). |
 | Lint: 11 files, 4 waivers, no warnings | `synth/README.md`. No lint log is committed. |
 | Clock crossings: 6 listed, structural check plus review | `docs/cdc.md` |
 | Overflow behaviour | `SPEC.md` sections 2 and 8.1, header of `rtl/feature_builder.sv`, header of `rtl/neurogate_top.sv`, `docs/modules/*.md` |
@@ -39,7 +37,7 @@ Repo snapshot: commit `fba2882` (the only commit in the clone used). Run on 2026
 3. **No simulation, synthesis, STA or lint was re-run.** Every RTL and tool result is the committed log or report, parsed. Only the Python model and the JavaScript replay were re-executed.
 4. **Reviewer name.** The repo says "independent reviewer" and never names it. The page uses "OpenAI Codex" and "Claude Code" as your brief says. The planning agent is not named.
 5. **M2 to M5 review files are not in the repo**, so the page cannot quote them. Rows are labelled as the builder's records.
-6. **Milestone M5** is "in progress" in the repo snapshot (second-model review and owner gate not recorded). The page says so.
+6. **Milestone M5** is "in progress" in the repo snapshot (final review not recorded). The page says so.
 7. **Dates.** The decision log supports Nov 13 and Nov 14. "Nov 13 to 15" is from your brief.
 8. **Contact section** has the email alias and links to your portfolio. The earlier About paragraphs were removed at your request.
 9. **Email alias** was given by you. I did not check that it receives mail.
