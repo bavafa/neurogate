@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeuroGate case study: AI-built packet-classification IP block</title>
+<meta name="description" content="A SystemVerilog packet pipeline with a small int8 neural network, built with a multi-agent AI flow and verified in simulation. All traffic is synthetic. Nothing ran on silicon or FPGA.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav class="top" aria-label="Sections">
+  <ul id="menu">
+    <li><a href="#top">Overview</a></li>
+    <li><a href="#why">Why</a></li>
+    <li><a href="#how">How it was built</a></li>
+    <li><a href="#arch">Architecture</a></li>
+    <li><a href="#follow">Follow a packet</a></li>
+    <li><a href="#input">Input</a></li>
+    <li><a href="#output">Output</a></li>
+    <li><a href="#verify">Verification</a></li>
+    <li><a href="#impl">Implementation</a></li>
+    <li><a href="#limits">Limitations</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <h1>NeuroGate: an AI-built packet-classification IP block, verified in simulation.</h1>
+    <p class="by">Built by Sam Bavafa (M.Sc. Electrical Engineering), in a weekend (Nov 13 to 15, 2026), using a multi-agent AI flow.</p>
+    <p>Sam is not a practising RTL designer. This project shows AI-assisted engineering on a packet-processing block.</p>
+    <p class="caveat">Everything here is simulation or a tool estimate. Nothing ran on FPGA or silicon. All traffic is synthetic.</p>
+    <div class="btns">
+      <a class="btn primary" href="#follow">Follow one packet</a>
+      <a class="btn" href="https://github.com/bavafa/neurogate">Repo</a>
+      <a class="btn" href="https://bavafa.github.io/neurogate/">Evidence</a>
+    </div>
+    <div class="grid2" style="margin-top:28px" id="headline-stats" aria-live="polite"></div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+<section id="why">
+  <h2>Why this problem</h2>
+  <p class="lede">Classify each packet in the data path with a small neural network, instead of in software.</p>
+  <p>Putting small ML models in the packet path is an active direction for SmartNICs and DPUs. NeuroGate is a small working example of that idea. It is not a new invention and it does not claim to compete with production designs.</p>
+  <p>The model is small on purpose: 8 inputs, 16 hidden units, 3 outputs, int8 weights. The block labels each packet as <b>normal</b>, <b>port scan</b> or <b>SYN flood</b> and reports a confidence margin. The point of the project is the whole path at small scale: AXI-Stream input, header parsing, feature extraction over a sliding window, a clock-domain crossing, fixed-point inference, flow control, counters and an AXI-Lite register interface. All of it is checked against a Python reference model.</p>
+</section>
+
+<section id="how">
+  <h2>How it was built with AI</h2>
+  <p class="lede">Four roles, one human. The AI agents wrote the RTL and the tests. Sam directed the work and approved every gate.</p>
+
+  <figure>
+    <svg class="flow" viewBox="0 0 960 250" role="img" aria-labelledby="flow-t flow-d">
+      <title id="flow-t">Multi-agent build flow</title>
+      <desc id="flow-d">A planning agent writes the task list. Claude Code builds RTL, tests and the Python model. OpenAI Codex reviews each milestone read-only and writes findings to a separate file. Claude Code closes the findings. A human approves the milestone gate. The loop repeats for milestones M1 to M5.</desc>
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted);stroke:none"/></marker></defs>
+      <rect x="20" y="90" width="190" height="80" rx="8"/><text class="h" x="115" y="120" text-anchor="middle">Planning agent</text><text x="115" y="140" text-anchor="middle">writes TASKS.md</text><text x="115" y="156" text-anchor="middle">runs milestone gates</text>
+      <rect x="270" y="90" width="190" height="80" rx="8"/><text class="h" x="365" y="120" text-anchor="middle">Claude Code (builder)</text><text x="365" y="140" text-anchor="middle">RTL, tests, model,</text><text x="365" y="156" text-anchor="middle">scripts, docs</text>
+      <rect x="520" y="90" width="200" height="80" rx="8"/><text class="h" x="620" y="120" text-anchor="middle">OpenAI Codex (reviewer)</text><text x="620" y="140" text-anchor="middle">read-only, writes a</text><text x="620" y="156" text-anchor="middle">findings file per milestone</text>
+      <rect class="human" x="780" y="90" width="160" height="80" rx="8"/><text class="h" x="860" y="120" text-anchor="middle">Human (Sam)</text><text x="860" y="140" text-anchor="middle">decides, approves</text><text x="860" y="156" text-anchor="middle">each gate, tags M1 to M5</text>
+      <path d="M210 130 H268" marker-end="url(#ah)"/><path d="M460 130 H518" marker-end="url(#ah)"/><path d="M720 130 H778" marker-end="url(#ah)"/>
+      <path d="M620 172 V215 H365 V172" marker-end="url(#ah)"/><text x="492" y="208" text-anchor="middle" class="muted">builder closes findings</text>
+      <path d="M860 88 V40 H115 V88" marker-end="url(#ah)"/><text x="490" y="33" text-anchor="middle" class="muted">owner decisions override everything and are logged in DECISIONS.md</text>
+    </svg>
+    <figcaption>Roles as defined in the project's process rules. The reviewer is read-only. The builder may not edit the review files.</figcaption>
+  </figure>
+
+  <h3>Milestones</h3>
+  <ol class="timeline" id="timeline">
+    <li><b>M1 Spec</b>SPEC, register map, scaffolding. Gate approved 2026-11-13 (D-010).</li>
+    <li><b>M2 Parsers</b>Traffic generator, feature model, parsers, queues. Gate approved 2026-11-13 (D-021).</li>
+    <li><b>M3 Network</b>Training, golden model, network core, decision unit. Gate approved 2026-11-14 (D-029).</li>
+    <li><b>M4 Full design</b>Top level, synthesis, gate-level simulation, timing. Gate approved 2026-11-14 (D-041).</li>
+    <li class="open"><b>M5 Docs</b>README, results page, clean-clone check. In progress in the repo snapshot used here: second-model review and owner gate not yet recorded.</li>
+  </ol>
+  <p class="src"><span class="tag sim">repo record</span> Sources: <a href="https://github.com/bavafa/neurogate/blob/main/STATUS.md">STATUS.md</a> milestone table, <a href="https://github.com/bavafa/neurogate/blob/main/DECISIONS.md">DECISIONS.md</a> D-010, D-021, D-029, D-041.</p>
+
+  <h3>What the human decided, and what the AI wrote</h3>
+  <div class="grid2">
+    <div class="card"><b>Decided and approved by Sam</b>
+      <ul class="plain">
+        <li>Scope and the open design questions: 64-bit AXI-Stream input, 64-packet window, simulators, liberty file, queue placement (D-001a to D-001e).</li>
+        <li>Confidence stays a logit margin, not a probability; no softmax in RTL (D-002, D-026).</li>
+        <li>Each milestone gate M1 to M4 (D-010, D-021, D-029, D-041).</li>
+        <li>The 0.108 ns reset-removal miss is reported as "not done", not hidden and not fixed (D-041).</li>
+      </ul></div>
+    <div class="card"><b>Written by the AI agents</b>
+      <ul class="plain">
+        <li>All RTL (11 modules), cocotb tests, the Python model, scripts and docs: Claude Code.</li>
+        <li>Review findings: OpenAI Codex, read-only.</li>
+        <li>Task list and gate checks: planning agent.</li>
+        <li>Sam did not hand-write RTL. The RTL is generated and reviewed by AI agents under his direction.</li>
+      </ul></div>
+  </div>
+
+  <h3>Real review findings</h3>
+  <p>Only <code>reviews/M1-review.md</code> is in the public repo. The M2 to M5 review files are kept outside it. For those milestones the rows below are the builder's own records in STATUS.md and DECISIONS.md, in the builder's wording, not the reviewer's text. The repo does not name the reviewer tool; the roles follow the project's process rules.</p>
+  <div class="tablewrap"><table id="findings">
+    <thead><tr><th>Milestone</th><th>Finding</th><th>Rating</th><th>How it was closed</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>M1</td><td>Counter guarantee was wrong. Counters update after queued entries finish, so their sum cannot always equal frames received. Soft-reset behaviour was undefined.</td><td>must fix</td><td>Reset precedence and accounting boundary written into the spec and register map. The equality is now qualified: drained pipeline, no saturation, no soft reset with frames in flight.</td><td><a href="https://github.com/bavafa/neurogate/blob/main/reviews/M1-review.md">M1-review.md</a>, STATUS.md</td></tr>
+      <tr><td>M1</td><td>The spec said the test set is never used for tuning, but the default confidence threshold was chosen from the test-set table.</td><td>must fix</td><td>Threshold is now chosen on a validation split carved from training data. The test set reports once. Owner confirmed at Gate M1.</td><td>M1-review.md, D-008, D-010</td></tr>
+      <tr><td>M1</td><td><code>toolchain_check.sh</code> printed an Icarus error and still exited 0.</td><td>must fix</td><td>Script now checks each version command's exit code and output. Checked with a bad temp directory and a fake failing tool. The builder could not reproduce the original error.</td><td>M1-review.md, STATUS.md</td></tr>
+      <tr><td>M1</td><td>Two STATUS claims had no saved evidence.</td><td>should fix</td><td>Marked "unverified, no saved output".</td><td>M1-review.md, STATUS.md</td></tr>
+      <tr><td>M2</td><td>Behaviour for truncated headers (keep a TCP frame cut after 14 header bytes) existed in model and RTL but not in the spec.</td><td>must fix</td><td>Spec clarified, no RTL change. Owner confirmed at Gate M2.</td><td>D-020, D-021</td></tr>
+      <tr><td>M2</td><td>"Parsers agree with Scapy on every frame" was too strong.</td><td>must fix</td><td>Reworded to the breakdown: 9,600 frames; all fields compared on 8,900; keep/drop only on 6; 694 dropped by both. Owner accepted.</td><td>STATUS.md, D-021</td></tr>
+      <tr><td>M2</td><td>Handshake checks did not watch for payload changes during a stall.</td><td>should fix</td><td>New handshake monitor. It found no RTL bug. It failed on two planted faults and missed a third; STATUS says so.</td><td>STATUS.md</td></tr>
+      <tr><td>M3</td><td>Evidence gap: RTL was compared on 2,028 vectors, not on every test packet. No must fix at M3.</td><td>should fix</td><td><code>make test-full</code> replays all 8,347 classified test packets through the network core and decision unit, twice. See Verification.</td><td>STATUS.md, D-028</td></tr>
+      <tr><td>M4</td><td>Testbench bug: <code>clear_beats()</code> replaced the error list, so a running monitor stopped seeing protocol faults.</td><td>review item</td><td>Fixed in place. A regression test fails on the old code. Log kept in the repo.</td><td>D-040, <a href="https://github.com/bavafa/neurogate/blob/main/tb/evidence/clear_beats_monitor.log">clear_beats_monitor.log</a></td></tr>
+      <tr><td>M4</td><td>Timing script could pass with broken constraints.</td><td>review item</td><td><code>make sta</code> now fails on constraint problems, shown with a planted fault.</td><td>D-040, <a href="https://github.com/bavafa/neurogate/blob/main/synth/reports/sta_constraint_check.log">sta_constraint_check.log</a></td></tr>
+      <tr><td>M5</td><td>Results page typed some values by hand instead of reading logs. Replay log lacked provenance. Module notes did not match the RTL.</td><td>must fix (two items) and should fix</td><td>Test prints its gap and stall rates; the page reads them. Replay log records whether rtl/ and tb/ were modified. Notes corrected, no RTL change.</td><td>D-046</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="arch">
+  <h2>Architecture</h2>
+  <p class="lede">Two unrelated clocks. Packet data crosses in one place, the asynchronous FIFO. Select a block for a short note and the source file.</p>
+  <figure>
+    <div id="archbox"></div>
+    <figcaption>Built from <a href="https://github.com/bavafa/neurogate/blob/main/rtl/neurogate_top.sv">rtl/neurogate_top.sv</a> and <a href="https://github.com/bavafa/neurogate/blob/main/SPEC.md">SPEC.md</a> section 2. Blocks are buttons: use Tab and Enter.</figcaption>
+  </figure>
+  <div class="card" id="blocknote" aria-live="polite"><p>Select a block.</p></div>
+</section>
+
+<section id="follow">
+  <h2>Follow one packet</h2>
+  <p class="lede">Pick a packet from the unseen test split and step through the pipeline.</p>
+  <p><b>Replay of the Python reference model in JavaScript. The RTL result shown is recorded from simulation.</b> The JavaScript in this page repeats the integer arithmetic of <code>model/golden.py</code> live. A node test compares it with the Python outputs on all 8,347 classified test packets. <span class="tag sim">simulated</span> synthetic data.</p>
+  <div class="stepper">
+    <div>
+      <label for="pick"><b>Sample packet</b></label>
+      <select id="pick"></select>
+      <p class="src" id="pickinfo"></p>
+    </div>
+    <div class="card" style="margin:0">
+      <ol class="steps" id="steps" aria-label="Pipeline steps"></ol>
+      <div id="stepbody" aria-live="polite"></div>
+      <div class="nextprev"><button id="prev">Previous</button><button id="next">Next</button></div>
+    </div>
+  </div>
+  <p class="src"><span class="tag sim">simulated</span> Data: <a href="data/samples.json">site/data/samples.json</a>, written by <a href="https://github.com/bavafa/neurogate/blob/main/scripts/export_site_data.py"><code>scripts/export_site_data.py</code></a>. Packets are chosen with a fixed seed; wrong predictions are included on purpose.</p>
+</section>
+
+<section id="input">
+  <h2>Input analysis</h2>
+  <p class="lede">Three synthetic traffic classes from one generator, with overlap on purpose.</p>
+  <p>The generator (<a href="https://github.com/bavafa/neurogate/blob/main/model/traffic_gen.py"><code>model/traffic_gen.py</code></a>, Scapy, fixed seeds) builds ordered scenarios. Each scenario is one stream of one class.</p>
+  <ul class="plain">
+    <li><b>Normal:</b> TCP data and ACK, TCP connection starts (a normal SYN, on purpose), FIN and RST, UDP, ICMP, ARP, VLAN-tagged TCP, non-first IP fragments, truncated frames and frames with <code>tuser</code> set.</li>
+    <li><b>Port scan:</b> bare SYNs from one source to one target, sequential or random destination ports, varied pacing.</li>
+    <li><b>SYN flood:</b> bare SYNs to one target port (80, 443 or 8080), from one or many sources.</li>
+    <li>Attack scenarios mix in 0 to 50% normal background packets, chosen per scenario, so the classes overlap.</li>
+    <li>The split is by scenario and generator seed. The test split uses a master seed training never saw.</li>
+  </ul>
+  <div id="inputstats" class="grid2"></div>
+
+  <h3>Feature distributions per class</h3>
+  <p>Each panel is one of the 8 int8 features on the 8,347 classified test packets. Binary features show the share of packets with the flag set. Other features show the share of the class in 8 bins of width 16 over 0 to 127.</p>
+  <div class="legend" id="classlegend"></div>
+  <div id="featgrid" class="grid2"></div>
+  <p id="featnotes"></p>
+  <p class="src"><span class="tag sim">simulated</span> Computed by <code>scripts/export_site_data.py</code> from the model's own parser and feature window: <a href="data/analysis.json">site/data/analysis.json</a>.</p>
+
+  <h3>Why 653 of 9,000 frames were dropped</h3>
+  <p>The parser drops frames it cannot or does not parse (spec section 4). Every dropped frame in this split is a normal-class frame; no attack frame is dropped. Dropped frames never reach the network and never enter the feature window.</p>
+  <figure><div id="dropchart"></div></figure>
+  <p class="src"><span class="tag sim">simulated</span> Source: <a href="data/analysis.json">analysis.json</a>; total checked against <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/metrics.json"><code>docs/results/metrics.json</code></a>.</p>
+</section>
+
+<section id="output">
+  <h2>Output analysis</h2>
+  <div class="card"><b>Accuracy here is on synthetic data. It is not real-world accuracy.</b> The generator is simpler than real traffic, and nothing was tested on real captures.</div>
+  <div id="outstats" class="grid2"></div>
+
+  <h3>Confusion matrix and per-class precision and recall (int8, test split)</h3>
+  <div class="grid2"><div class="tablewrap" id="cm"></div><div class="tablewrap" id="prt"></div></div>
+  <p class="src"><span class="tag sim">simulated</span> Source: <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/metrics.json"><code>docs/results/metrics.json</code></a> (copied to <a href="data/metrics.json">site/data/metrics.json</a>), <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/results.md">results.md</a>.</p>
+
+  <h3>Float against int8</h3>
+  <div id="fi"></div>
+
+  <h3>Confidence margin against measured accuracy</h3>
+  <p>Confidence is a logit margin (top score minus second score, shifted right by 8, capped at 127). It is not a probability. The default threshold of 13 was chosen on a validation split with one rule: the smallest threshold for which kept packets are at least 98% correct. The bars show the unseen test split, reported once with no further tuning. Dots show the validation table used for the choice.</p>
+  <figure><div id="marginchart"></div><figcaption id="margincap"></figcaption></figure>
+  <p class="src"><span class="tag sim">simulated</span> Source: <code>margin_bins</code> in metrics.json; same data as <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/margin_vs_accuracy.png"><code>margin_vs_accuracy.png</code></a>.</p>
+</section>
+
+<section id="verify">
+  <h2>Verification</h2>
+  <p class="lede">RTL against the Python model, gate-level simulation, lint and a structural clock-crossing check. All simulated.</p>
+  <div id="verifystats" class="grid2"></div>
+  <h3>What each check covers</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Check</th><th>Result</th><th>Label</th><th>Source</th></tr></thead>
+    <tbody id="verifytable"></tbody></table></div>
+  <p>The replay log covers <code>mlp_core</code> and <code>decision_unit</code>, not the whole design. The whole-design traffic test (9,000 frames through both clocks) is described in STATUS.md only; its log is not committed. The replay log holds totals, not one RTL label per packet.</p>
+
+  <h3>Waveform from a simulation run</h3>
+  <p>Reused from the Evidence page. It is drawn from a trimmed signal dump of the throughput test: 14 frames go in back to back on the network clock, and result beats leave one at a time.</p>
+  <figure><div class="wavebox" id="wave" role="group" aria-label="Timing diagram of the throughput run"><p>Loading waveform.</p></div></figure>
+  <p class="src"><span class="tag sim">simulated</span> Sources: <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/wave_throughput.vcd"><code>wave_throughput.vcd</code></a>, <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/throughput_run.log"><code>throughput_run.log</code></a>. <a href="https://bavafa.github.io/neurogate/#waveform">Open it on the Evidence page.</a></p>
+
+  <h3>What a production flow would add</h3>
+  <ul class="plain">
+    <li>Commercial CDC analysis (this project has a structural script and a written review, not a sign-off).</li>
+    <li>Logical equivalence checking (LEC) between RTL and netlist. Here, gate-level simulation covered two vector sets only.</li>
+    <li>Coverage closure with a coverage-driven verification environment (functional and code coverage).</li>
+    <li>Place and route, with clock tree, real wires and corners. This is where the reset-removal miss would be fixed.</li>
+    <li>An FPGA run and, later, silicon-oriented signoff. Neither exists here.</li>
+  </ul>
+</section>
+
+<section id="impl">
+  <h2>Implementation</h2>
+  <p class="lede">Area, timing and throughput from Yosys and OpenSTA reports, plus a cycle count from simulation.</p>
+  <div class="card"><span class="tag est">estimate</span> Yosys and ABC with the Nangate45 teaching library, typical corner, ideal clocks, no wires, no place and route. These numbers say nothing about a real device.</div>
+  <div id="implstats" class="grid2"></div>
+
+  <h3>Timing (OpenSTA, positive slack = met)</h3>
+  <div class="tablewrap"><table id="timing"></table></div>
+  <p>The reset-removal check fails by 0.108 ns on both clocks and is shown as it is in the report. The cause is 40 flip-flops with an asynchronous reset pin whose synchronizer output changes 0.18 ns after the clock edge, while the library wants at least 0.288 ns. This is normally fixed with delay cells after clock-tree build, which this project does not have. <code>make sta</code> exits non-zero because of it. The owner accepted this as "reported, not fixed" at Gate M4.</p>
+  <p>The first mapping failed core-clock setup by 6.186 ns because one FIFO read-address bit drove hundreds of gate inputs. The fix was a delay target for the logic mapper, which added buffers. The logic and latency did not change.</p>
+  <p class="src"><span class="tag est">estimate</span> Sources: <a href="https://github.com/bavafa/neurogate/blob/main/synth/reports/sta.txt"><code>sta.txt</code></a>, <a href="https://github.com/bavafa/neurogate/blob/main/synth/reports/sta_before.txt"><code>sta_before.txt</code></a>, <a href="https://github.com/bavafa/neurogate/blob/main/synth/reports/sta_wireload.txt"><code>sta_wireload.txt</code></a>, <a href="https://github.com/bavafa/neurogate/blob/main/synth/README.md">synth/README.md</a>.</p>
+
+  <h3>Throughput against the 10 Gb/s input</h3>
+  <div id="thr"></div>
+  <p class="src"><span class="tag sim">simulated</span> Source: <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/throughput_run.log"><code>throughput_run.log</code></a>. Packets per second is a cycle count times the target clock: a simulated estimate, not a measured line rate.</p>
+
+  <h3>What happens when the core falls behind</h3>
+  <ul class="plain">
+    <li>The input is not stalled because the asynchronous FIFO is full. <code>s_axis_tready</code> goes low only when the 4-slot input queue is full (spec section 2, <code>neurogate_top.sv</code> header).</li>
+    <li>When an entry is ready and the FIFO is full, <code>feature_builder</code> throws the entry away and adds 1 to a 16-bit pending-overflow count. The next entry that gets through carries the count. An overflow-only entry carries it if no packet is waiting.</li>
+    <li>The count reaches the <code>PKT_OVERFLOW</code> register. Every frame lands in exactly one counter once the pipeline has drained. The pending count saturates at 65,535, which the spec states as a known limit.</li>
+    <li>Frames lost to overflow still enter the feature window, so features depend only on the packet stream, not on timing (D-004).</li>
+    <li>An overflow test exists in the stress suite (<code>test_overflow</code>). No overflow behaviour is shown in a committed log here; see STATUS.md.</li>
+  </ul>
+  <p class="src">Sources: <a href="https://github.com/bavafa/neurogate/blob/main/SPEC.md">SPEC.md</a> sections 2 and 8.1, <a href="https://github.com/bavafa/neurogate/blob/main/rtl/feature_builder.sv"><code>rtl/feature_builder.sv</code></a>.</p>
+</section>
+
+<section id="limits">
+  <h2>Limitations</h2>
+  <p class="lede">From the README, with the same meaning.</p>
+  <ul class="plain">
+    <li><b>Synthetic data.</b> All traffic comes from this repo's generator. Real traffic is messier. Accuracy here is not real-world accuracy. Nothing was tested on real captures.</li>
+    <li><b>Simulation only.</b> Nothing ran on an FPGA or in silicon. Throughput is a cycle count from simulation times the target clock. It is a simulated estimate, not a measured line rate.</li>
+    <li><b>Clock crossings: structural check plus review, no formal proof.</b> A script checks that every crossing is one of the allowed kinds, and the builder wrote a review of each. This is not a commercial CDC tool. Simulation cannot show metastability.</li>
+    <li><b>Timing without place and route.</b> Ideal clocks, no wires beyond one rough guess, one typical condition, a guessed 20% budget for outside logic. Setup is met on both clocks (estimate). The reset-release miss of 0.108 ns is reported as not done.</li>
+    <li><b>Gate-level simulation is partial.</b> The netlist ran a 120-frame smoke set and a 480-frame bad-packet set. Longer traffic, overflow and reset tests were not repeated on it. The gate models have no delays, so it checks function, not timing.</li>
+    <li><b>Not done.</b> No FPGA or silicon run, no Vivado result, no power estimate, no formal proofs, no real-world traffic, no manufacturing flow.</li>
+    <li><b>Small design on purpose.</b> IPv4 with TCP or UDP and at most one VLAN tag. Everything else is counted as dropped.</li>
+    <li><b>Features are approximations.</b> Ports are hashed into 64 buckets, so two ports can share one and the count can be too low. Only SYN without ACK is counted as a connection request.</li>
+  </ul>
+  <p class="src">Source: <a href="https://github.com/bavafa/neurogate/blob/main/README.md#limitations">README.md, Limitations</a>.</p>
+</section>
+
+<section id="about">
+  <h2>About</h2>
+  <ul class="plain">
+    <li>Sam Bavafa has an M.Sc. and B.Sc. in Electrical Engineering and an FPGA programming certificate, with university training in digital design, Verilog and VHDL from years ago. He is not a current RTL expert.</li>
+    <li>For 8+ years he has built AI and ML products as a product leader, with teams of up to 14 engineers and data scientists. Today he builds software daily with a multi-agent AI flow: a planning agent, Claude Code as builder, OpenAI Codex as reviewer.</li>
+    <li>He does not claim to replace RTL designers. He wants to help a design team adopt AI in its flow, with an electrical engineering foundation and a repeatable way to check AI output.</li>
+  </ul>
+  <p><a href="#" id="contact">Contact: [add email or LinkedIn URL here]</a></p>
+</section>
+</main>
+<footer><div class="wrap">Static page. Data in <code>site/data/</code> is generated from the repository by <code>scripts/export_site_data.py</code>. Repo snapshot: <span id="commit"></span>.</div></footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
