@@ -1,0 +1,5 @@
+# Gate-level simulation must fail on a damaged netlist (simulated, seed 12345). Fault: every 11th AND2_X1 cell in the netlist file changed to OR2_X1; restored afterwards. Real output, filtered.
+                                                            raise ValueError(f"Cannot convert {self!r} to int")
+                                                        ValueError: Cannot convert Logic('X') to int
+                                                        ** neurogate_top_checks.test_smoke_two_clocks   FAIL         190.84           0.09       2238.20  **
+                                                        ** TESTS=1 PASS=0 FAIL=1 SKIP=0                              190.84           0.09       2060.91  **

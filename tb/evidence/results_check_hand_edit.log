@@ -1,0 +1,39 @@
+# make results-check: shown to fail on a hand-edited number, then pass after revert
+# commit 157a920803f63bb94ea446a89a3e18d3f5d97562
+## step 1: committed page
+$ make results-check
+results-check: PASS (docs/index.html matches the result files)
+exit 0
+## step 2: hand edit, accuracy 95.50% -> 96.50% in the Summary tile only
+$ sed -i "0,/95.50%/s//96.50%/" docs/index.html
+ docs/index.html | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ make results-check
+results-check: FAIL (docs/index.html differs from what the result files give; run make results-page). First differences:
+  --- docs/index.html (committed)
+  +++ docs/index.html (from sources)
+  @@ -94 +94 @@
+  -<li class="tile"><span class="big">96.50%</span><span class="small">accuracy of the int8 network on 8,347 unseen synthetic packets</span><span class="meta"><span class="badge sim">simulated</span> <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/metrics.json"><code>docs/results/m
+  +<li class="tile"><span class="big">95.50%</span><span class="small">accuracy of the int8 network on 8,347 unseen synthetic packets</span><span class="meta"><span class="badge sim">simulated</span> <a href="https://github.com/bavafa/neurogate/blob/main/docs/results/metrics.json"><code>docs/results/m
+make: *** [Makefile:153: results-check] Error 1
+exit 2
+## step 3: hand edit, removal slack -0.108 -> -0.018 in the timing table
+$ git checkout docs/index.html; sed -i "0,/<td>-0.108<\/td>/s//<td>-0.018<\/td>/" docs/index.html
+Updated 1 path from the index
+ docs/index.html | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ make results-check
+results-check: FAIL (docs/index.html differs from what the result files give; run make results-page). First differences:
+  --- docs/index.html (committed)
+  +++ docs/index.html (from sources)
+  @@ -364 +364 @@
+  -<tr><th scope="row">Reset release, removal</th><td>-0.018</td><td>-0.108</td><td class="txt"><strong>missed by 0.108 ns</strong>: not done, because there is no place-and-route step</td></tr>
+  +<tr><th scope="row">Reset release, removal</th><td>-0.108</td><td>-0.108</td><td class="txt"><strong>missed by 0.108 ns</strong>: not done, because there is no place-and-route step</td></tr>
+make: *** [Makefile:153: results-check] Error 1
+exit 2
+## step 4: revert
+$ git checkout docs/index.html
+Updated 1 path from the index
+$ make results-check
+results-check: PASS (docs/index.html matches the result files)
+exit 0

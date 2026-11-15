@@ -1,0 +1,21 @@
+gls_run bad: seed=12345 bad-packet set of 480 frames
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:216  in gpi_load_users                  Running entry func 'initialize' from loaded library '<tools>/oss-cad-suite/lib/python3.11/site-packages/cocotb-2.1.0.dev0+41564633-py3.11-linux-x64.egg/cocotb/libs/libcocotb.so'
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:96   in initialize                      Using Python 3.11.6 interpreter at <tools>/oss-cad-suite/bin/tabbypy3
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 14.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with supplied seed 12345
+     0.00ns INFO     cocotb                             Initialized cocotb v2.1.0.dev0+41564633 from <tools>/oss-cad-suite/lib/python3.11/site-packages/cocotb-2.1.0.dev0+41564633-py3.11-linux-x64.egg/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running neurogate_top_stress_checks.test_bad_packets (1/1)
+                                                            Malformed, truncated, wrong-EtherType and tuser-error frames among good ones.
+   110.08ns INFO     cocotb.neurogate_top               bad (simulated): seed=12345 core_clk phase=81 ps
+   110.08ns INFO     cocotb.neurogate_top               bad packets: 480 frames, model drops 304, classifies 176
+239825.08ns INFO     cocotb.neurogate_top               result beats 176 (expected 176), mismatches 0, protocol errors 0; counters PKT_NORMAL=145, PKT_SCAN=12, PKT_SYN=19, BYTES_NORMAL=20930, BYTES_SCAN=648, BYTES_SYN=1026, PKT_DROPPED=304, PKT_LOWCONF=58, LAST_RESULT=30976, PKT_OVERFLOW=0
+239830.08ns INFO     cocotb.regression                  neurogate_top_stress_checks.test_bad_packets passed
+239830.08ns INFO     cocotb.regression                  ******************************************************************************************************
+                                                        ** TEST                                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ******************************************************************************************************
+                                                        ** neurogate_top_stress_checks.test_bad_packets   PASS      239830.08         850.46        282.00  **
+                                                        ******************************************************************************************************
+                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0                             239830.08         850.47        282.00  **
+                                                        ******************************************************************************************************
+gls_bad_checks [neurogate_top_gls_bad]: 1 passed, 0 failed (seed=12345)

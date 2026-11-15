@@ -1,0 +1,53 @@
+
+14. Printing statistics.
+
+=== neurogate_top ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+    19154        - wires
+    23813        - wire bits
+      310        - public wires
+     4659        - public wire bits
+       29        - ports
+      223        - port bits
+    18907 3.49E+04 cells
+      386  410.704   AND2_X1
+      125   166.25   AND3_X1
+       35    55.86   AND4_X1
+      325   432.25   AOI211_X1
+     1314  1.4E+03   AOI21_X1
+      148  236.208   AOI221_X1
+       86  183.008   AOI222_X1
+      659   876.47   AOI22_X1
+     1143  912.114   BUF_X1
+      299  238.602   CLKBUF_X1
+       42   223.44   DFFR_X1
+        2    10.64   DFFS_X1
+     3702 1.67E+04   DFF_X1
+      936  497.952   INV_X1
+        8    4.256   LOGIC0_X1
+        2    1.064   LOGIC1_X1
+     2630  4897.06   MUX2_X1
+      984  785.232   NAND2_X1
+      189  201.096   NAND3_X1
+       45    59.85   NAND4_X1
+     1461 1.17E+03   NOR2_X1
+      181  192.584   NOR3_X1
+       43    57.19   NOR4_X1
+      318   422.94   OAI211_X1
+     2282 2.43E+03   OAI21_X1
+      195   311.22   OAI221_X1
+       24   51.072   OAI222_X1
+      496   659.68   OAI22_X1
+       11   20.482   OAI33_X1
+      182  193.648   OR2_X1
+       42    55.86   OR3_X1
+       11   17.556   OR4_X1
+      364  580.944   XNOR2_X1
+      237  378.252   XOR2_X1
+
+   Chip area for module '\neurogate_top': 34865.950000
+     of which used for sequential elements: 16974.524000 (48.69%)
+

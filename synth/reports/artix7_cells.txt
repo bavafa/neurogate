@@ -1,0 +1,34 @@
+
+3. Printing statistics.
+
+=== neurogate_top ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     3522 wires
+     7914 wire bits
+      246 public wires
+     2267 public wire bits
+       29 ports
+      223 port bits
+     4605 cells
+        2   BUFG
+      145   CARRY4
+        2   DSP48E1
+       42   FDCE
+        2   FDPE
+     1659   FDRE
+        7   FDSE
+      132   IBUF
+       33   INV
+      447   LUT2
+       78   LUT3
+      287   LUT4
+      829   LUT5
+      804   LUT6
+        7   MUXF7
+        3   MUXF8
+       91   OBUF
+       32   RAM32M
+        3   RAM64M
+

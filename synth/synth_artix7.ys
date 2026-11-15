@@ -1,0 +1,5 @@
+# Artix-7 resource ESTIMATE with Yosys synth_xilinx (no Vivado, no place and route).
+# Run through `make synth-xilinx`. Result: LUT / flip-flop / block RAM / DSP counts.
+read_slang rtl/*.sv --top neurogate_top
+synth_xilinx -top neurogate_top -family xc7 -flatten
+tee -o synth/reports/artix7_cells.txt stat

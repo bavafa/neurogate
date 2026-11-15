@@ -1,0 +1,35 @@
+# Yosys synthesis of neurogate_top to the Nangate45 typical-corner cell library.
+# Run from the repository root through `make synth` (see synth/run_synth.sh).
+# Result is a *synthesized (estimate)*: Yosys + ABC, no place and route.
+#
+# Steps: read the SystemVerilog (slang frontend, same as make cdc-check), flatten
+# the hierarchy, turn the ROM into logic (no RAM cells in the library), map
+# flip-flops (with asynchronous reset where the RTL has it) and logic to library cells.
+# Cell definitions (ports and directions only) so check and stat know every library cell.
+read_liberty -lib lib/NangateOpenCellLibrary_typical.lib
+read_slang rtl/*.sv --top neurogate_top
+hierarchy -check -top neurogate_top
+synth -top neurogate_top -flatten
+# The weight ROMs become gates: the library has no memory macros.
+memory_map
+opt -full
+# Flip-flops first, then combinational logic, both from the liberty file.
+dfflibmap -liberty lib/NangateOpenCellLibrary_typical.lib
+opt_clean
+# Logic mapping with a delay target (timing session, M4 session 5). Without -D, ABC
+# maps for area and never inserts buffers: one bit of the FIFO read address
+# (u_afifo.rd_bin_q[1]) then drove 573 gate inputs of the storage read multiplexer,
+# and an inverter after it 419 more, which together took almost 10 ns.
+# -D 5000 sets a 5000 ps (= one 200 MHz core clock period) target for every path;
+# with -constr ABC also adds buffers on high-fanout nets and resizes gates
+# (its "buffer; upsize; dnsize" steps). synth/abc.constr gives the assumed
+# driver of each logic input (BUF_X1) and the load on each output (3 fF).
+# This changes only how the same logic is built from cells, not what it does.
+abc -liberty lib/NangateOpenCellLibrary_typical.lib -D 5000 -constr synth/abc.constr
+opt_clean -purge
+# Tie constants to cells so the netlist has no bare 1'b0 / 1'b1 on cell pins.
+hilomap -hicell LOGIC1_X1 Z -locell LOGIC0_X1 Z
+opt_clean -purge
+tee -o synth/reports/check.txt check -assert
+tee -o synth/reports/cells.txt stat -liberty lib/NangateOpenCellLibrary_typical.lib -width
+write_verilog -noattr -noexpr -nohex synth/out/neurogate_top_netlist.v

@@ -1,0 +1,9 @@
+# Throughput test output, kept for the results page (simulated, RTL, Icarus).
+# command: NG_WAVES=1 SEED=12345 python3 tb/test_neurogate_top_throughput.py
+# source: commit 0b753fa5382d8deae723e4c2cbb180483988bdb6; rtl/ and tb/ unmodified
+# written by scripts/capture_waveform.py; only result lines are kept
+14823.48ns INFO cocotb.neurogate_top throughput (simulated): 14 classified frames back to back, mean frame 321 bytes; input of frames 2..14 took 3494 ns (42.0 net clocks per frame)
+14823.48ns INFO cocotb.neurogate_top throughput (simulated): core clocks between result beats with a backlog: min 179, mean 179.0, max 179 over 11 gaps
+14823.48ns INFO cocotb.neurogate_top throughput (simulated estimate): 1117 k packets/s at core_clk 200 MHz (200e6 / 179.0); core-limited, about 2865 Mbit/s of frame data at this mean frame size
+14823.48ns INFO cocotb.neurogate_top throughput (simulated): first-frame latency, last input beat to result beat: 187 core clocks
+neurogate_top_throughput_checks [neurogate_top_throughput]: 1 passed, 0 failed (seed=12345)

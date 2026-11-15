@@ -1,0 +1,23 @@
+gls_run: seed=12345 traffic seed=1 packets per scenario=40
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:216  in gpi_load_users                  Running entry func 'initialize' from loaded library '<tools>/oss-cad-suite/lib/python3.11/site-packages/cocotb-2.1.0.dev0+41564633-py3.11-linux-x64.egg/cocotb/libs/libcocotb.so'
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:96   in initialize                      Using Python 3.11.6 interpreter at <tools>/oss-cad-suite/bin/tabbypy3
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 14.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with supplied seed 12345
+     0.00ns INFO     cocotb                             Initialized cocotb v2.1.0.dev0+41564633 from <tools>/oss-cad-suite/lib/python3.11/site-packages/cocotb-2.1.0.dev0+41564633-py3.11-linux-x64.egg/cocotb
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running neurogate_top_checks.test_smoke_two_clocks (1/1)
+                                                            Paced frames in; result beats and AXI-Lite counters equal the models; then a
+    53.85ns INFO     cocotb.neurogate_top               top smoke (simulated): seed=12345 core_clk phase=845 ps, frames=120 conf_thresh=13
+243855.85ns INFO     cocotb.neurogate_top               top smoke (simulated): result beats 110 (expected 110), mismatches 0, protocol errors 0
+243855.85ns INFO     cocotb.neurogate_top               top smoke (simulated): counters read over AXI-Lite: PKT_NORMAL=43, PKT_SCAN=63, PKT_SYN=4, BYTES_NORMAL=9010, BYTES_SCAN=3402, BYTES_SYN=216, PKT_DROPPED=10, PKT_LOWCONF=45, LAST_RESULT=3073, PKT_OVERFLOW=0; sum of the five frame counters = 120 for 120 frames
+243855.85ns INFO     cocotb.neurogate_top               top smoke (simulated, not asserted): last input beat to result beat 187..191 core clocks over 110 classified frames (includes random result-stream stalls)
+243985.85ns INFO     cocotb.neurogate_top               top smoke (simulated): soft reset over AXI-Lite cleared all counters; CONF_THRESH kept
+243990.85ns INFO     cocotb.regression                  neurogate_top_checks.test_smoke_two_clocks passed
+243990.85ns INFO     cocotb.regression                  ****************************************************************************************************
+                                                        ** TEST                                        STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ****************************************************************************************************
+                                                        ** neurogate_top_checks.test_smoke_two_clocks   PASS      243990.85          77.57       3145.43  **
+                                                        ****************************************************************************************************
+                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0                           243990.85          77.58       3145.10  **
+                                                        ****************************************************************************************************
+neurogate_top_checks [neurogate_top_gls]: 1 passed, 0 failed (seed=12345)

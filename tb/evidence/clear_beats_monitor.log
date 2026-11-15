@@ -1,0 +1,43 @@
+# Evidence for the clear_beats() monitor fix (simulated, seed 12345). Real output, filtered to the test result lines.
+
+## 1. Old code (clear_beats builds a new list) + regression test: must FAIL
+1134586.09ns INFO     cocotb.regression                  running neurogate_top_stress_checks.test_monitor_after_clear (7/7)
+1134751.20ns WARNING  ..sk.Test test_monitor_after_clear a protocol fault forced after clear_beats() was not reported
+                                                         +  where False = any(<generator object test_monitor_after_clear.<locals>.<genexpr> at 0x7f015b5502b0>)
+                                                          File "<repo>/tb/neurogate_top_stress_checks.py", line 370, in test_monitor_after_clear
+                                                        AssertionError: a protocol fault forced after clear_beats() was not reported
+                                                         +  where False = any(<generator object test_monitor_after_clear.<locals>.<genexpr> at 0x7f015b5502b0>)
+1134751.20ns WARNING  cocotb.regression                  neurogate_top_stress_checks.test_monitor_after_clear failed
+                                                        ** neurogate_top_stress_checks.test_monitor_after_clear     FAIL         165.10           0.01      18676.35  **
+                                                        ** TESTS=7 PASS=6 FAIL=1 SKIP=0                                      1134751.20          19.99      56774.85  **
+
+## 2. Fixed code (errors.clear() in place) + regression test: must PASS
+1134586.09ns INFO     cocotb.regression                  running neurogate_top_stress_checks.test_monitor_after_clear (7/7)
+1134751.20ns INFO     cocotb.neurogate_top               monitor after clear (simulated): errors seen = ['result stream: valid dropped during a stall (edge 8)']
+1134756.20ns INFO     cocotb.regression                  neurogate_top_stress_checks.test_monitor_after_clear passed
+                                                        ** neurogate_top_stress_checks.test_monitor_after_clear     PASS         170.10           0.00      60097.04  **
+                                                        ** TESTS=7 PASS=7 FAIL=0 SKIP=0                                      1134756.20          19.80      57297.98  **
+
+## 3. Fixed code, fault planted inside test_overflow phase B right after clear_beats(): must FAIL
+499412.53ns INFO     cocotb.regression                  running neurogate_top_stress_checks.test_overflow (3/7)
+637491.21ns WARNING  cocotb.task.Test test_overflow     result stream: valid dropped during a stall (edge 14316)
+                                                        assert not ['result stream: valid dropped during a stall (edge 14316)']
+                                                         +  where ['result stream: valid dropped during a stall (edge 14316)'] = <top_common.Chip object at 0x7fe89e5ccdd0>.errors
+                                                          File "<repo>/tb/neurogate_top_stress_checks.py", line 202, in test_overflow
+                                                        AssertionError: result stream: valid dropped during a stall (edge 14316)
+                                                        assert not ['result stream: valid dropped during a stall (edge 14316)']
+                                                         +  where ['result stream: valid dropped during a stall (edge 14316)'] = <top_common.Chip object at 0x7fe89e5ccdd0>.errors
+637491.21ns WARNING  cocotb.regression                  neurogate_top_stress_checks.test_overflow failed
+1134796.20ns INFO     cocotb.neurogate_top               monitor after clear (simulated): errors seen = ['result stream: valid dropped during a stall (edge 8)']
+                                                        ** neurogate_top_stress_checks.test_overflow                FAIL      138078.68           2.87      48105.57  **
+                                                        ** TESTS=7 PASS=6 FAIL=1 SKIP=0                                      1134801.20          19.64      57783.73  **
+
+## 4. Plant reverted: whole stress suite must PASS
+                                                        ** neurogate_top_stress_checks.test_bad_packets             PASS      239830.08           3.93      60991.45  **
+                                                        ** neurogate_top_stress_checks.test_result_backpressure     PASS      259582.45           5.27      49241.45  **
+                                                        ** neurogate_top_stress_checks.test_overflow                PASS      138033.68           3.72      37088.21  **
+                                                        ** neurogate_top_stress_checks.test_hard_reset_midstream    PASS      291690.91           6.82      42749.48  **
+                                                        ** neurogate_top_stress_checks.test_soft_reset_midstream    PASS      203002.59           4.21      48208.81  **
+                                                        ** neurogate_top_stress_checks.test_soft_reset_same_cycle   PASS        2446.37           0.03      71097.23  **
+                                                        ** neurogate_top_stress_checks.test_monitor_after_clear     PASS         170.10           0.00      61384.50  **
+                                                        ** TESTS=7 PASS=7 FAIL=0 SKIP=0                                      1134756.20          24.01      47267.38  **

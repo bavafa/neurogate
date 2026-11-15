@@ -1,0 +1,86 @@
+# Clean-clone check (simulated; run by the builder, M5 session 3)
+# What was done: a fresh `git clone` of the pushed branch into an empty temporary folder
+# outside the working copy, then the README "Quick start" lines exactly as written,
+# nothing extra. Tools (make, Verilator, Icarus Verilog, Yosys, OpenSTA) were already
+# installed on the machine, as docs/toolchain.md describes; they are not part of the clone.
+# Not run in the clone: make test-full, synth, gls, sta (README lists them as optional/slower).
+# Paths below are shortened; the temporary folder name is replaced by <clone>.
+# commit tested: 5e168c48adf1
+# date: 2026-11-14
+# Earlier attempt (commit df7094d, not kept): two gaps found and fixed in the README before this run:
+#   the steps never created the Python environment, and make toolchain was listed before the
+#   cell-library download, so it reported the library as missing and exited non-zero.
+
+$ git clone --branch m5-s3 https://github.com/bavafa/neurogate.git neurogate
+Cloning into 'neurogate'...
+exit code: 0
+
+$ python3 -m venv .venv && .venv/bin/pip install cocotb scapy numpy
+Using cached pygments-2.21.0-py3-none-any.whl (1.3 MB)
+Using cached find_libpython-0.5.1-py3-none-any.whl (9.2 kB)
+Installing collected packages: scapy, pygments, pluggy, packaging, numpy, iniconfig, find_libpython, pytest, cocotb
+
+
+Successfully installed cocotb-2.1.0 find_libpython-0.5.1 iniconfig-2.3.1 numpy-2.5.4 packaging-26.3 pluggy-1.7.0 pygments-2.21.0 pytest-9.2.0 scapy-2.8.0
+exit code: 0
+
+$ source .venv/bin/activate && . scripts/env.sh && lib/fetch_nangate45.sh
+<clone>/neurogate/lib/NangateOpenCellLibrary_typical.lib: OK
+exit code: 0
+
+$ source .venv/bin/activate && . scripts/env.sh && make toolchain
+OpenSTA:   3.2.0
+Python:    Python 3.13.5
+cocotb:    2.1.0
+scapy:     2.8.0
+numpy:     2.5.4
+liberty:   present, sha256 8d540a4d4cf6d09d...
+exit code: 0
+
+$ source .venv/bin/activate && . scripts/env.sh && make lint compile-check cdc-check test
+PASSED
+tb/test_traffic_gen.py::test_feature_separation mean F7 per scenario: scan [99, 70, 75, 107] flood [21, 15, 2, 8]
+PASSED
+
+============================== 6 passed in 3.77s ===============================
+test: overall exit 0
+exit code: 0
+
+# make test summary lines (from the full output of the same run):
+lint: exit 0 (0 = no warning other than the waivers above)
+cdc_check: 0 violation(s): PASS
+test_async_fifo: 8 passed, 0 failed (seed=12345)
+test_axil_regs: 8 passed, 0 failed (seed=12345)
+test_axil_regs [axil_regs_t99]: 8 passed, 0 failed (seed=12345)
+cdc_check: 0 violation(s): PASS
+test_decision_unit: 7 passed, 0 failed (seed=12345)
+decision_chain_checks: 2 passed, 0 failed (seed=12345)
+test_eth_parser: 5 passed, 0 failed (seed=12345)
+test_feature_builder: 6 passed, 0 failed (seed=12345)
+feature_chain_checks: 3 passed, 0 failed (seed=12345)
+============================== 47 passed in 0.21s ==============================
+======================== 17 passed in 85.63s (0:01:25) =========================
+test_l3l4_parser: 6 passed, 0 failed (seed=12345)
+test_mlp_core: 4 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_int32_max]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_int32_min]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_allzero_tie01]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_allzero_tie12]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_allzero_tie_all]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_allzero_top2]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_round_half_shift2]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_shift0]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_saturate]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_random_shift1]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_random_shift5]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_random_shift12]: 1 passed, 0 failed (seed=12345)
+mlp_custom_checks [mlp_core_random_shift30]: 1 passed, 0 failed (seed=12345)
+neurogate_top_checks: 1 passed, 0 failed (seed=12345)
+neurogate_top_full_checks [neurogate_top_full]: 1 passed, 0 failed (seed=12345)
+neurogate_top_stress_checks [neurogate_top_stress]: 7 passed, 0 failed (seed=12345)
+neurogate_top_throughput_checks [neurogate_top_throughput]: 1 passed, 0 failed (seed=12345)
+test_skid_fifo: 6 passed, 0 failed (seed=12345)
+test_stats_counters: 7 passed, 0 failed (seed=12345)
+test_stats_counters [stats_counters_w8]: 7 passed, 0 failed (seed=12345)
+============================== 6 passed in 3.77s ===============================
+test: overall exit 0

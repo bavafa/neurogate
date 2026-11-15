@@ -1,0 +1,8 @@
+# Full test-split replay output, kept for the results page (simulated, RTL, Icarus).
+# command: make test-full (first part: python3 tb/full_split_run.py), SEED=12345
+# source: run on commit 65476f0ea7e6-dirty (a -dirty suffix means uncommitted edits at the time); rtl/ and tb/ unmodified at run time
+# written by scripts/save_replay_log.py; only result lines are kept
+7470605.00ns INFO cocotb.mlp_decision_tb FULL SPLIT back_to_back (simulated): seed=12345 thresh=13 gap=0 stall=0 rows compared=8347 mismatches=0 {'logits': 0, 'class': 0, 'conf': 0, 'low_conf': 0, 'meta': 0, 'tap': 0} handshake errors=0
+14941230.00ns INFO cocotb.mlp_decision_tb FULL SPLIT backpressure (simulated): seed=12345 thresh=13 gap=0.3 stall=0.5 rows compared=8347 mismatches=0 {'logits': 0, 'class': 0, 'conf': 0, 'low_conf': 0, 'meta': 0, 'tap': 0} handshake errors=0
+full_split_checks: 2 passed, 0 failed (seed=12345)
+exit: 0

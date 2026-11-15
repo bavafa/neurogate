@@ -1,0 +1,16 @@
+# make sta must fail when the constraints are incomplete (estimate run, real output, filtered).
+# Fault: every set_output_delay line removed from a copy of the SDC; restored afterwards.
+sta: OpenSTA exit 0, wire load none, report synth/reports/sta.txt
+SUMMARY net_clk setup to outputs     no path
+SUMMARY core_clk setup to outputs     no path
+sta: constraint problems (check_setup) in synth/reports/sta.txt:
+Warning: There are 83 unconstrained endpoints.
+sta: OpenSTA warnings in synth/reports/sta.txt:
+Warning: There are 83 unconstrained endpoints.
+sta: a SUMMARY check found no path to time:
+SUMMARY net_clk setup to outputs     no path
+SUMMARY core_clk setup to outputs     no path
+sta: at least one check is VIOLATED in the main run (see synth/reports/sta.txt)
+sta: OpenSTA exit 0, wire load 5K_hvratio_1_1, report synth/reports/sta_wireload.txt
+SUMMARY net_clk setup to outputs     no path
+SUMMARY core_clk setup to outputs     no path

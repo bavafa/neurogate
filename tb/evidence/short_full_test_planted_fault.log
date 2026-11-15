@@ -1,0 +1,9 @@
+Planted-fault check of the shortened whole-chip test (make test, 900 frames). Simulated, seed 12345.
+Fault: rtl/decision_unit.sv line 194, "conf_next < conf_thresh" changed to "conf_next <= conf_thresh"
+(low-confidence flag wrong when the margin equals the threshold). Fault reverted afterwards (git checkout).
+Command: SEED=12345 python3 tb/test_neurogate_top_full.py
+Result with the fault: FAIL, exit 1. Output lines:
+1085485.99ns INFO     cocotb.neurogate_top               top full (simulated): 900 frames sent in 1085 us of simulated time; result beats 840 (expected 840), mismatches 43, protocol errors 0
+** TESTS=1 PASS=0 FAIL=1 SKIP=0                                      1085485.99          17.71      61280.87  **
+neurogate_top_full_checks [neurogate_top_full]: 0 passed, 1 failed (seed=12345)
+Result after revert: PASS (900 frames, mismatches 0, protocol errors 0; see the run in STATUS.md).
