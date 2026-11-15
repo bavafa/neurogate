@@ -143,4 +143,5 @@ footer { padding: 30px 0 60px; color: var(--muted); font-size: .88rem; }
 .wave .span { stroke: var(--ink); stroke-width: 1.2; fill: none; } .wave .xfill { fill: color-mix(in srgb, var(--line) 80%, transparent); }
 .wave { min-width: 760px; }
 #archbox { overflow-x: auto; } #archbox svg { min-width: 760px; }
-#findings { min-width: 820px; } #timing { min-width: 620px; } #verify .tablewrap table { min-width: 640px; }
+ #timing { min-width: 620px; } #verify .tablewrap table { min-width: 640px; }
+#findings { min-width: 700px; font-size: .84rem; line-height: 1.4; } #findings th, #findings td { padding: .3rem .5rem; } #findings td:first-child { white-space: nowrap; } .rate { color: var(--muted); font-size: .78rem; } #findings td:last-child { font-size: .78rem; }
