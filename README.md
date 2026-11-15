@@ -145,6 +145,15 @@ Tool setup is in [docs/toolchain.md](docs/toolchain.md).
   understood (a VLAN, or virtual local area network, tag is a label that splits one physical
   network into separate logical ones). Everything else is counted as dropped.
 
+## Case-study site
+
+`site/` holds a static page that presents this project (architecture, a step-by-step packet
+walk-through, charts built from `docs/results/metrics.json`, verification and timing reports).
+Regenerate its data with `python3 scripts/export_site_data.py`, check the JavaScript replay of the
+golden model with `node site/test/golden.test.mjs`, and deploy the `site/` folder to Vercel as a
+static site (Root Directory `site`, no build command). Details: [site/README.md](site/README.md).
+Every number on the page comes from a file in this repository; the tags *simulated* and *estimate* mean the same as above.
+
 ## Development approach
 
 The project uses an automated builder and an independent reviewer under the owner's direction.
