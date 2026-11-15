@@ -196,7 +196,7 @@
     <li>The input is not stalled because the asynchronous FIFO is full. <code>s_axis_tready</code> goes low only when the 4-slot input queue is full (spec section 2, <code>neurogate_top.sv</code> header).</li>
     <li>When an entry is ready and the FIFO is full, <code>feature_builder</code> throws the entry away and adds 1 to a 16-bit pending-overflow count. The next entry that gets through carries the count. An overflow-only entry carries it if no packet is waiting.</li>
     <li>The count reaches the <code>PKT_OVERFLOW</code> register. Every frame lands in exactly one counter once the pipeline has drained. The pending count saturates at 65,535, which the spec states as a known limit.</li>
-    <li>Frames lost to overflow still enter the feature window, so features depend only on the packet stream, not on timing (D-004).</li>
+    <li>Frames lost to overflow still enter the feature window, so features depend only on the packet stream, not on timing.</li>
     <li>An overflow test is part of the stress suite (<code>test_overflow</code>).</li>
   </ul>
   <p class="src">Sources: <a href="https://github.com/bavafa/neurogate/blob/main/SPEC.md">SPEC.md</a> sections 2 and 8.1, <a href="https://github.com/bavafa/neurogate/blob/main/rtl/feature_builder.sv"><code>rtl/feature_builder.sv</code></a>.</p>
