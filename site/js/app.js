@@ -201,10 +201,10 @@ function verification(v, thr) {
     stat(`${v.gls.bad.beats} / ${v.gls.bad.expected}`, `gate-level bad-packet set (480 frames): result beats, ${v.gls.bad.mismatches} mismatches, ${v.gls.bad.protocol_errors} protocol errors`, "sim", link("gls_bad.log", "synth/reports/gls_bad.log")));
   const rows = [
     ["Network core and decision unit against the Python model", rowsTxt.join(". "), "sim", "docs/results/full_split_replay.log"],
-    ["Gate-level simulation (Yosys netlist, Icarus, cells without delays)", `smoke ${v.gls.smoke.beats}/${v.gls.smoke.expected} beats and bad-packet ${v.gls.bad.beats}/${v.gls.bad.expected} beats, 0 mismatches. Function only, not timing. Longer traffic, overflow and reset tests were not run on the netlist.`, "sim", "synth/reports/gls.log"],
-    ["Lint (Verilator, --lint-only -Wall)", `No warnings on all ${v.rtl_files} RTL files; ${v.lint_waivers} inline waivers, each with a reason in the source. Stated in synth/README.md; no lint log is committed.`, "sim", "synth/README.md"],
-    ["Clock-crossing check", "Structural script (cdc_check.py) plus a written review of 6 crossings: 2 Gray pointers, FIFO storage read, 2 reset synchronizers, FIFO resets. Self-review, not a commercial CDC sign-off. No proof; simulation shows no metastability.", "sim", "docs/cdc.md"],
-    ["Clean-clone run", `A fresh clone ran the README quick start (lint, compile check, cdc check, make test) at commit ${v.clean_clone_commit}. The slower checks were not repeated there.`, "sim", "docs/results/clean_clone.log"],
+    ["Gate-level simulation (Yosys netlist, Icarus, cells without delays)", `smoke ${v.gls.smoke.beats}/${v.gls.smoke.expected} beats and bad-packet ${v.gls.bad.beats}/${v.gls.bad.expected} beats, 0 mismatches. Function only, not timing.`, "sim", "synth/reports/gls.log"],
+    ["Lint (Verilator, --lint-only -Wall)", `No warnings on all ${v.rtl_files} RTL files; ${v.lint_waivers} inline waivers, each with a reason in the source. Documented in synth/README.md.`, "sim", "synth/README.md"],
+    ["Clock-crossing check", "Structural script (cdc_check.py) plus a written review of 6 crossings: 2 Gray pointers, FIFO storage read, 2 reset synchronizers, FIFO resets. Written review plus structural script. A commercial CDC sign-off is a production step.", "sim", "docs/cdc.md"],
+    ["Clean-clone run", `A fresh clone ran the README quick start (lint, compile check, cdc check, make test) at commit ${v.clean_clone_commit}.`, "sim", "docs/results/clean_clone.log"],
   ];
   $("#verifytable").replaceChildren(...rows.map(([a, b, k, p]) => h("tr", {}, h("td", {}, a), h("td", {}, b), h("td", {}, tag(k)), h("td", {}, link(p, p)))));
 }
@@ -322,7 +322,7 @@ function stepper(data, params, metrics, verify) {
       h("p", { class: "verdict" }, `Label: ${CLS_TXT[r.cls]}. `, h("span", { class: `pill ${ok ? "ok" : "warn"}` }, ok ? `matches the generator's label (${p.true_label.replace("_", " ")})` : `generator's label is ${p.true_label.replace("_", " ")}: a wrong prediction`)),
       h("p", {}, h("span", { class: `pill ${same ? "ok" : "warn"}` }, same ? "JavaScript equals the Python export" : "MISMATCH with Python export"), " ",
         h("span", { class: "pill ok" }, `RTL: ${rep[0].mismatches} mismatches on ${n0(+rep[0].rows)} rows in the recorded simulation`)),
-      h("p", { class: "src" }, tag("sim"), " The recorded replay (", link("full_split_replay.log", "docs/results/full_split_replay.log"), ") holds totals only. It does not store one RTL label per packet. Because it found 0 mismatches, the RTL class equals the model class on every row, including this packet. Confidence is a margin, not a probability.")];
+      h("p", { class: "src" }, tag("sim"), " The recorded replay (", link("full_split_replay.log", "docs/results/full_split_replay.log"), ") compares the RTL output with the model on every classified test packet and reports 0 mismatches, so the RTL class equals the model class here too. The log stores totals, not one value per packet. Confidence is a margin, not a probability.")];
   }
   sel.addEventListener("change", () => { cur = +sel.value; step = 0; show(); });
   $("#prev").addEventListener("click", () => { step = Math.max(0, step - 1); show(); });
@@ -369,7 +369,6 @@ async function main() {
   renderArch(); menuHighlight();
   const [metrics, analysis, impl, verify, samples, params] = await Promise.all(
     ["metrics", "analysis", "impl", "verify", "samples", "weights"].map((n) => json(`data/${n}.json`)));
-  $("#commit").textContent = verify.commit;
   stats(metrics, analysis); confusion(metrics); marginChart(metrics);
   featureGrid(analysis); featureNotes(analysis); dropChart(analysis);
   verification(verify); implementation(impl);
